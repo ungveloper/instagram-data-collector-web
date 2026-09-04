@@ -2,7 +2,9 @@ import { collectInstagramProfile } from "@/lib/instagram/collector";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 1800;
+// Vercel Hobby의 Fluid Compute 상한에 맞춘 값입니다.
+// Pro/Enterprise라도 현재 일반 상한은 800초이므로 1800은 배포 검증에서 거부될 수 있습니다.
+export const maxDuration = 300;
 
 type RequestBody = {
   url?: unknown;

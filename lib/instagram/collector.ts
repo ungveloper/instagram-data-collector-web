@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { chromium, type Browser, type Page } from "playwright";
+import { type Browser, type Page } from "playwright-core";
 import {
   captionFromMetaDescription,
   extractHashtags,
@@ -19,6 +19,7 @@ import type {
   InstagramProfile,
   InstagramSourceTab,
 } from "./types";
+import { launchCollectorBrowser } from "./browser";
 import { parseInstagramProfileUrl } from "./url";
 
 const MAX_SCROLL_ROUNDS_PER_TAB = 1_200;
@@ -387,13 +388,13 @@ async function collectOnePost(
 
 async function launchBrowser() {
   try {
-    return await chromium.launch({ headless: true });
+    return await launchCollectorBrowser();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    if (/executable|browser.*not found|install/i.test(message)) {
+    if (/executable|browser.*not found|install/i.test(message) && process.env.VERCEL !== "1") {
       throw new Error("Playwright Chromium이 설치되지 않았습니다. `npx playwright install chromium`을 실행해주세요.");
     }
-    throw error;
+    throw new Error(`Chromium 실행에 실패했습니다: ${message}`);
   }
 }
 
