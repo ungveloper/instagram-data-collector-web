@@ -53,8 +53,16 @@ Instagram이 현재 브라우저 세션에 제공하지 않는 데이터는 가�
 
 ```bash
 npm install
-npx playwright install chromium
 npm run dev
 ```
 
 `http://localhost:3000`에서 사용합니다.
+
+
+## 브라우저 설치
+
+`npm install`만 실행하면 환경에 맞게 브라우저가 준비됩니다.
+
+- macOS/Windows 로컬: `postinstall`에서 Playwright Chromium 자동 설치
+- Vercel/Linux 서버: npm dependency인 `@sparticuz/chromium`의 서버리스 Chromium 바이너리 사용
+- Vercel에서 `npx playwright install chromium`을 수동 실행할 필요 없음

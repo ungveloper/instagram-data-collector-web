@@ -391,10 +391,12 @@ async function launchBrowser() {
     return await launchCollectorBrowser();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    if (/executable|browser.*not found|install/i.test(message) && process.env.VERCEL !== "1") {
-      throw new Error("Playwright Chromium이 설치되지 않았습니다. `npx playwright install chromium`을 실행해주세요.");
+    if (/executable|browser.*not found|install/i.test(message) && process.platform !== "linux") {
+      throw new Error(
+        "로컬 Chromium 실행 파일을 찾을 수 없습니다. `npm install`을 다시 실행하면 Chromium이 자동 설치됩니다.",
+      );
     }
-    throw new Error(`Chromium 실행에 실패했습니다: ${message}`);
+    throw new Error(`서버리스 Chromium 실행에 실패했습니다: ${message}`);
   }
 }
 

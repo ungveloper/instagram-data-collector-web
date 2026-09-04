@@ -1,20 +1,15 @@
 import type { Browser } from "playwright-core";
 
-const SERVERLESS_CHROMIUM_VERSION = "143.0.4";
-
-function serverlessChromiumPackUrl() {
-  const architecture = process.arch === "arm64" ? "arm64" : "x64";
-  return `https://github.com/Sparticuz/chromium/releases/download/v${SERVERLESS_CHROMIUM_VERSION}/chromium-v${SERVERLESS_CHROMIUM_VERSION}-pack.${architecture}.tar`;
+function isServerlessLinux() {
+  return process.env.VERCEL === "1" || process.platform === "linux";
 }
 
 export async function launchCollectorBrowser(): Promise<Browser> {
   const { chromium } = await import("playwright-core");
 
-  if (process.env.VERCEL === "1") {
-    const { default: serverlessChromium } = await import("@sparticuz/chromium-min");
-    const executablePath = await serverlessChromium.executablePath(
-      serverlessChromiumPackUrl(),
-    );
+  if (isServerlessLinux()) {
+    const { default: serverlessChromium } = await import("@sparticuz/chromium");
+    const executablePath = await serverlessChromium.executablePath();
 
     return chromium.launch({
       headless: true,

@@ -7,14 +7,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "instagram:login": "node scripts/save-instagram-session.mjs"
+    "instagram:login": "node scripts/save-instagram-session.mjs",
+    "browser:install": "playwright install chromium",
+    "postinstall": "node scripts/setup-browser.mjs"
   },
   "dependencies": {
-    "@sparticuz/chromium-min": "143.0.4",
     "next": "16.3.4",
     "playwright-core": "1.57.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "@sparticuz/chromium": "143.0.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
