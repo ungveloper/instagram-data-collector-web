@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import type {
   CollectorProgress,
   InstagramCollection,
@@ -11,14 +11,6 @@ type StreamEvent =
   | { type: "progress"; progress: CollectorProgress }
   | { type: "result"; result: InstagramCollection }
   | { type: "error"; error: string };
-
-const LIMIT_OPTIONS = [
-  { label: "50개", value: 50 },
-  { label: "100개", value: 100 },
-  { label: "250개", value: 250 },
-  { label: "500개", value: 500 },
-  { label: "가능한 만큼", value: 0 },
-];
 
 function csvCell(value: unknown) {
   const text = value === null || value === undefined ? "" : String(value);
@@ -115,16 +107,15 @@ function statusLabel(post: InstagramPost) {
 
 export function CollectorClient() {
   const [url, setUrl] = useState("");
-  const [maxPosts, setMaxPosts] = useState(100);
   const [progress, setProgress] = useState<CollectorProgress | null>(null);
   const [result, setResult] = useState<InstagramCollection | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
 
-  const progressPercent = useMemo(() => {
-    if (!progress?.total || !progress.current) return null;
-    return Math.min(100, Math.round((progress.current / progress.total) * 100));
-  }, [progress]);
+  const progressPercent =
+    progress?.total && progress.current
+      ? Math.min(100, Math.round((progress.current / progress.total) * 100))
+      : null;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -139,7 +130,7 @@ export function CollectorClient() {
       const response = await fetch("/api/instagram/collect", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, maxPosts }),
+        body: JSON.stringify({ url }),
       });
 
       if (!response.ok) {
@@ -217,7 +208,7 @@ export function CollectorClient() {
         </header>
 
         <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:p-6">
-          <form onSubmit={handleSubmit} className="grid gap-4 lg:grid-cols-[1fr_180px_auto] lg:items-end">
+          <form onSubmit={handleSubmit} className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
             <label className="grid gap-2">
               <span className="text-sm font-semibold">Instagram 프로필 URL</span>
               <input
@@ -230,20 +221,6 @@ export function CollectorClient() {
               />
             </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold">수집 범위</span>
-              <select
-                value={maxPosts}
-                onChange={(event) => setMaxPosts(Number(event.target.value))}
-                className="h-12 rounded-xl border border-zinc-300 bg-white px-3 text-sm outline-none focus:border-zinc-950"
-              >
-                {LIMIT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
 
             <button
               type="submit"
@@ -255,9 +232,10 @@ export function CollectorClient() {
           </form>
 
           <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
-            “가능한 만큼”은 2,000개 같은 게시물 고정 상한 없이 새 링크가 더 이상 나타나지 않을 때까지
-            메인·Reels·Tagged 탭을 탐색합니다. 비로그인으로 부족하면 터미널에서 npm run instagram:login을
-            실행해 본인 브라우저 세션을 저장할 수 있습니다. 로그인/CAPTCHA를 자동 우회하지는 않습니다.
+            메인 피드·Reels·Tagged 탭을 각각 새 콘텐츠 링크가 더 이상 나타나지 않을 때까지 탐색하고,
+            발견된 URL을 중복 제거한 뒤 게시물·릴스·캐러셀 상세 정보를 모두 수집합니다.
+            앱 자체에는 게시물 개수 제한을 두지 않습니다. Instagram이 현재 브라우저 세션에 노출하지 않는
+            콘텐츠나 Vercel 실행 시간 제한 때문에 실제 수집 범위가 제한될 수 있습니다.
           </div>
         </section>
 

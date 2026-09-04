@@ -1,5 +1,4 @@
-import serverlessChromium from "@sparticuz/chromium-min";
-import { chromium, type Browser } from "playwright-core";
+import type { Browser } from "playwright-core";
 
 const SERVERLESS_CHROMIUM_VERSION = "143.0.4";
 
@@ -9,7 +8,10 @@ function serverlessChromiumPackUrl() {
 }
 
 export async function launchCollectorBrowser(): Promise<Browser> {
+  const { chromium } = await import("playwright-core");
+
   if (process.env.VERCEL === "1") {
+    const { default: serverlessChromium } = await import("@sparticuz/chromium-min");
     const executablePath = await serverlessChromium.executablePath(
       serverlessChromiumPackUrl(),
     );

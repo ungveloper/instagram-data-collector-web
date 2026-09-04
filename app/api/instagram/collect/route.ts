@@ -2,13 +2,11 @@ import { collectInstagramProfile } from "@/lib/instagram/collector";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-// Vercel Hobby의 Fluid Compute 상한에 맞춘 값입니다.
-// Pro/Enterprise라도 현재 일반 상한은 800초이므로 1800은 배포 검증에서 거부될 수 있습니다.
-export const maxDuration = 300;
+// Fluid Compute가 꺼진 Hobby 프로젝트에서도 허용되는 최대값입니다.
+export const maxDuration = 60;
 
 type RequestBody = {
   url?: unknown;
-  maxPosts?: unknown;
 };
 
 function line(payload: unknown) {
@@ -27,10 +25,6 @@ export async function POST(request: Request) {
     return Response.json({ error: "Instagram 프로필 URL을 입력해주세요." }, { status: 400 });
   }
 
-  const maxPosts =
-    typeof body.maxPosts === "number" && Number.isFinite(body.maxPosts)
-      ? Math.max(0, Math.floor(body.maxPosts))
-      : 0;
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
@@ -43,7 +37,6 @@ export async function POST(request: Request) {
         try {
           const result = await collectInstagramProfile({
             url: body.url as string,
-            maxPosts,
             onProgress(progress) {
               send({ type: "progress", progress });
             },

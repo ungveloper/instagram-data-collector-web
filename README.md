@@ -15,7 +15,7 @@ Instagram 프로필의 공개 콘텐츠를 Playwright로 탐색해 가능한 메
 - Reels 탭
 - Tagged 탭
 - 게시물 / Reel / Carousel URL과 shortcode
-- `가능한 만큼` 선택 시 게시물 개수의 고정 상한 없이 새 링크가 더 이상 나오지 않을 때까지 각 탭 스크롤
+- 별도 게시물 개수 선택 없이 항상 메인 피드·Reels·Tagged 탭에서 새 링크가 더 이상 나오지 않을 때까지 각 탭 스크롤
 
 ### 게시물 / Reel / Carousel 상세
 - 내부 ID / shortcode / canonical URL / 소유 username
