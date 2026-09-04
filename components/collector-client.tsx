@@ -27,34 +27,37 @@ function csvCell(value: unknown) {
 
 function postsToCsv(collection: InstagramCollection) {
   const headers = [
-    "profile_username",
-    "shortcode",
-    "status",
-    "type",
-    "url",
-    "published_at",
-    "caption",
-    "hashtags",
-    "mentions",
-    "tagged_accounts",
-    "coauthors",
-    "like_count",
-    "comment_count",
-    "location_name",
-    "audio_title",
-    "media_count",
-    "media_urls",
-    "thumbnail_urls",
-    "error",
+    "profile_username", "profile_display_name", "profile_biography", "profile_followers_count",
+    "profile_following_count", "profile_posts_count", "profile_is_verified", "profile_category",
+    "profile_external_url", "profile_bio_links", "post_id", "shortcode", "status", "type", "source_tabs", "url",
+    "owner_username", "published_at", "is_pinned", "caption", "hashtags", "mentions",
+    "tagged_accounts", "coauthors", "like_count", "comment_count", "view_count", "play_count",
+    "location_name", "location_url", "audio_title", "audio_artist", "audio_url",
+    "media_count", "media_ids", "media_types", "media_urls", "thumbnail_urls", "media_alt_texts",
+    "media_dimensions", "media_durations", "media_view_counts", "media_play_counts",
+    "captured_comments_count", "captured_comments_json", "error",
   ];
 
   const rows = collection.posts.map((post) => [
     collection.profile.username,
+    collection.profile.displayName,
+    collection.profile.biography,
+    collection.profile.followersCount,
+    collection.profile.followingCount,
+    collection.profile.postsCount,
+    collection.profile.isVerified,
+    collection.profile.categoryName,
+    collection.profile.externalUrl,
+    collection.profile.bioLinks.map((link) => link.url).join(" | "),
+    post.id,
     post.shortcode,
     post.status,
     post.type,
+    post.sourceTabs.join(" "),
     post.url,
+    post.ownerUsername,
     post.publishedAt,
+    post.isPinned,
     post.caption,
     post.hashtags.join(" "),
     post.mentions.join(" "),
@@ -62,11 +65,25 @@ function postsToCsv(collection: InstagramCollection) {
     post.coauthors.join(" "),
     post.likeCount,
     post.commentCount,
+    post.viewCount,
+    post.playCount,
     post.locationName,
+    post.locationUrl,
     post.audioTitle,
+    post.audioArtist,
+    post.audioUrl,
     post.media.length,
+    post.media.map((media) => media.id).filter(Boolean).join(" | "),
+    post.media.map((media) => media.kind).join(" | "),
     post.media.map((media) => media.url).join(" | "),
     post.media.map((media) => media.thumbnailUrl).filter(Boolean).join(" | "),
+    post.media.map((media) => media.alt).filter(Boolean).join(" | "),
+    post.media.map((media) => `${media.width ?? ""}x${media.height ?? ""}`).join(" | "),
+    post.media.map((media) => media.durationSeconds).filter((value) => value !== null).join(" | "),
+    post.media.map((media) => media.viewCount).filter((value) => value !== null).join(" | "),
+    post.media.map((media) => media.playCount).filter((value) => value !== null).join(" | "),
+    post.comments.length,
+    JSON.stringify(post.comments),
     post.error,
   ]);
 
@@ -193,9 +210,9 @@ export function CollectorClient() {
             Instagram Data Collector
           </h1>
           <p className="max-w-3xl text-sm leading-6 text-zinc-600 sm:text-base">
-            공개 Instagram 프로필 URL을 입력하면 브라우저에 노출되는 게시물·릴스·캐러셀의
-            캡션, 해시태그, 멘션, 미디어 참조 URL과 메타데이터를 정리합니다. 결과는 서버에
-            저장하지 않고 브라우저에서 JSON 또는 CSV로 내려받습니다.
+            Instagram 프로필 URL을 입력하면 메인 피드·Reels·Tagged 탭을 끝까지 탐색하고,
+            각 콘텐츠의 캡션·태그·공동작성자·반응 수·위치·오디오·미디어·페이지에 포함된 댓글 등
+            가능한 공개 메타데이터를 JSON 또는 CSV로 정리합니다.
           </p>
         </header>
 
@@ -238,9 +255,9 @@ export function CollectorClient() {
           </form>
 
           <div className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
-            공개 페이지에 실제로 노출되는 범위만 수집합니다. 비공개 계정, 로그인 벽, CAPTCHA,
-            지역·연령 제한은 우회하지 않습니다. “가능한 만큼”은 무한 요청 방지를 위해 1회 최대
-            2,000개 링크까지 탐색합니다.
+            “가능한 만큼”은 2,000개 같은 게시물 고정 상한 없이 새 링크가 더 이상 나타나지 않을 때까지
+            메인·Reels·Tagged 탭을 탐색합니다. 비로그인으로 부족하면 터미널에서 npm run instagram:login을
+            실행해 본인 브라우저 세션을 저장할 수 있습니다. 로그인/CAPTCHA를 자동 우회하지는 않습니다.
           </div>
         </section>
 
